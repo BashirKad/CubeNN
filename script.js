@@ -28,11 +28,7 @@ function unlockSticker(sticker){
 
   } ); 
   const stickerName = sticker[0];
-  console.log("edit 1:")
-  console.log(stickerName)
   const sideIndex = sticker[1] - 1;
-  console.log("edit 2:")
-  console.log(sideIndex)
 
   const sideKeys = Object.keys(sides);
   let changed = false;

@@ -342,8 +342,6 @@ export default class Game {
       setTimeout( () => {
 
         const gameCubeData = JSON.parse( localStorage.getItem( 'theCube_savedState' ) );
-        console.log("edit 3:")
-        console.log(gameCubeData)
 
         if ( !gameCubeData ) {
 
