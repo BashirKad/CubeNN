@@ -77,6 +77,8 @@ function startSolo(size = 2){
         for(let i=0; i<unlocks; i++){
             let sticker = lockedStickers.pop();
             window.unlockSticker(sticker);
+            console.log("IM IN HERE MESSING WITH THINGS")
+            console.log(sticker)
             stickersUnlocked++;
         }
     }
