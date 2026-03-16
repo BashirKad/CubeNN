@@ -15,7 +15,7 @@ function unlockSticker(sticker){
   console.log("Unlocking sticker: ", sticker);
 
   console.log("SECOND")
-  stickerList = window.game.cube.edges
+  let stickerList = window.game.cube.edges
   console.log(window)
 
   for (sticker in stickerList) {
@@ -83,7 +83,7 @@ function startGame(gameOptions, seed, apId) {
   window.game = new Game(gameOptions, seed, apId);
 
   console.log("FIRST")
-  stickerList = window.game.cube.edges
+  let stickerList = window.game.cube.edges
   console.log(window)
 
   for (sticker in stickerList) {
