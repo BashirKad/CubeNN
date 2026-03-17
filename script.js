@@ -14,14 +14,6 @@ function unlockSticker(sticker){
   if(!sticker) return;
   console.log("Unlocking sticker: ", sticker);
 
-  console.log("SECOND")
-  // let stickerList = window.game.cube.edges
-  console.log(window)
-
-  // for (sticker in stickerList) {
-  //   console.log(sticker.userData)
-  // }
-
   const sides = { 'x-': [], 'x+': [], 'y-': [], 'y+': [], 'z-': [], 'z+': [] };
 
   window.game.cube.edges.forEach( edge => {
@@ -82,13 +74,19 @@ function startGame(gameOptions, seed, apId) {
   window.deathlinksInProgress = false;
   window.game = new Game(gameOptions, seed, apId);
 
-  console.log("FIRST")
-  // let stickerList = window.game.cube.edges
-  console.log(window)
+  //at the start of the game, print all edges, seperating which are locked and unlocked
+  const list = window.game.cube.edges;
 
-  // for (sticker in stickerList) {
-  //   console.log(sticker.userData)
-  // }
+  for (let i = 0; i < list.length; i++) {
+    console.log(i)
+    if (list[i].userData.locked) {
+      console.log("open")
+      console.log(list[i].userData.color)
+    }
+    else {
+      console.log("closed")
+    }
+  }
 
   // Disable the standard right-click context menu on the whole document
   document.addEventListener('contextmenu', function(event) {
