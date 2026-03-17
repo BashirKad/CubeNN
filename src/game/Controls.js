@@ -770,14 +770,27 @@ export default class Controls {
       const mainSign = position.multiplyScalar( 2 ).round()[ mainAxis ] < 1 ? '-' : '+';
       sides[ mainAxis + mainSign ].push(edge.userData);
 
-      //figuring out how checkIsSolved works:
-      console.log("Print On Move")
-      console.log(position);
-      console.log(mainAxis);
-      console.log(mainSign);
-      console.log(sides);
-
     } );
+
+    //****
+    //Send out an AJAX 
+    fetch("http://localhost:8000/receiver", {
+      method: "POST",
+      headers: {"Content Type": "application/json"},
+      body: JSON.stringify(sides)
+    })
+    .then(response=>{
+      if (!response.ok) {
+        throw new Error("Response Error")
+      }
+      return response.json();
+    })
+    .then(data=>{
+      console.log("Data Retrieved from Server: ", data);
+    })
+    .catch(error=>{
+      console.log("Something's wrong. Error: ", error)
+    });
 
     let maxPossible = 0;
     let isSolved = true;
