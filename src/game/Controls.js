@@ -776,7 +776,7 @@ export default class Controls {
     //Send out an AJAX 
     fetch("http://localhost:8000/receiver", {
       method: "POST",
-      headers: {"Content Type": "application/json"},
+      headers: {"Content-Type": "application/json"},
       body: JSON.stringify(sides)
     })
     .then(response=>{
