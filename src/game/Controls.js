@@ -772,6 +772,13 @@ export default class Controls {
 
     } );
 
+    //figuring out how checkIsSolved works:
+    console.log("Print On Move")
+    console.log(position);
+    console.log(mainAxis);
+    console.log(mainSign);
+    console.log(sides);
+
     let maxPossible = 0;
     let isSolved = true;
     let maxColorsPerSide = {}
@@ -855,20 +862,20 @@ export default class Controls {
     }
 
     //should compute score on each player move
-    console.log("Print On Move")
-    const list = window.game.cube.edges;
+    // console.log("Print On Move")
+    // const list = window.game.cube.edges;
     console.log(window.game.cube.edges);
 
-    for (let i = 0; i < list.length; i++) {
-      console.log(i);
-      if (!list[i].userData.locked) {
-        console.log("open");
-        console.log(list[i].userData.color);
-      }
-      else {
-        console.log("closed");
-      }
-    }
+    // for (let i = 0; i < list.length; i++) {
+    //   console.log(i);
+    //   if (!list[i].userData.locked) {
+    //     console.log("open");
+    //     console.log(list[i].userData.color);
+    //   }
+    //   else {
+    //     console.log("closed");
+    //   }
+    // }
 
     window.submitScore(window.highScore);
 
