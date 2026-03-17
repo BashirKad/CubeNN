@@ -75,20 +75,20 @@ function startGame(gameOptions, seed, apId) {
   window.game = new Game(gameOptions, seed, apId);
 
   //at the start of the game, print all edges, seperating which are locked and unlocked
-  const list = window.game.cube.edges;
-
+  console.log("First Print On Bootup")
+  // const list = window.game.cube.edges;
   console.log(window.game.cube.edges);
 
-  for (let i = 0; i < list.length; i++) {
-    console.log(i);
-    if (!list[i].userData.locked) {
-      console.log("open");
-      console.log(list[i].userData.color);
-    }
-    else {
-      console.log("closed");
-    }
-  }
+  // for (let i = 0; i < list.length; i++) {
+  //   console.log(i);
+  //   if (!list[i].userData.locked) {
+  //     console.log("open");
+  //     console.log(list[i].userData.color);
+  //   }
+  //   else {
+  //     console.log("closed");x
+  //   }
+  // }
 
   // Disable the standard right-click context menu on the whole document
   document.addEventListener('contextmenu', function(event) {

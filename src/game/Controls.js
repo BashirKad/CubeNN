@@ -770,14 +770,14 @@ export default class Controls {
       const mainSign = position.multiplyScalar( 2 ).round()[ mainAxis ] < 1 ? '-' : '+';
       sides[ mainAxis + mainSign ].push(edge.userData);
 
-    } );
+      //figuring out how checkIsSolved works:
+      console.log("Print On Move")
+      console.log(position);
+      console.log(mainAxis);
+      console.log(mainSign);
+      console.log(sides);
 
-    //figuring out how checkIsSolved works:
-    console.log("Print On Move")
-    console.log(position);
-    console.log(mainAxis);
-    console.log(mainSign);
-    console.log(sides);
+    } );
 
     let maxPossible = 0;
     let isSolved = true;
