@@ -854,6 +854,22 @@ export default class Controls {
       this.onSolved();
     }
 
+    //should compute score on each player move
+    console.log("Print On Move")
+    const list = window.game.cube.edges;
+    console.log(window.game.cube.edges);
+
+    for (let i = 0; i < list.length; i++) {
+      console.log(i);
+      if (!list[i].userData.locked) {
+        console.log("open");
+        console.log(list[i].userData.color);
+      }
+      else {
+        console.log("closed");
+      }
+    }
+
     window.submitScore(window.highScore);
 
     if (window.highScore === this.game.totalStickers) {
