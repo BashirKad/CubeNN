@@ -12,8 +12,32 @@ CORS(app)
 
 def receiver():
     data = request.json
-    print(data)
+
+    blueFace = data["x+"]
+    greenFace = data["x-"]
+    whiteFace = data["y+"]
+    yellowFace = data["y-"]
+    redFace = data["z+"]
+    orangeFace = data["z-"]
+
+    print(type(blueFace))
+    print(type(blueFace[0]))
+
+    helper(blueFace)
+    helper(greenFace)
+    helper(whiteFace)
+    helper(yellowFace)
+    helper(redFace)
+    helper(orangeFace)
+
     return jsonify({"Status" : "Successfully Received Message"})
 
 if __name__=="__main__":
     app.run(host = "localhost", port = 8000)
+
+def helper(arr):
+    for i in range(9):
+        if (not arr[i].locked):
+            print(arr[i].color)
+        else:
+            print("locked")
