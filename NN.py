@@ -16,4 +16,4 @@ def receiver():
     return jsonify({"Status" : "Successfully Received Message"})
 
 if __name__=="__main__":
-    app.run(host = "localhost", port = 8000)
+    app.run(host = "bashirkad.github.io/CubeNN", port = 8000)
