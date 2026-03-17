@@ -5,7 +5,7 @@
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import python.helpers as helpers
+import helpers
 
 app = Flask(__name__)
 CORS(app)
