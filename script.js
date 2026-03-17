@@ -74,11 +74,6 @@ function startGame(gameOptions, seed, apId) {
   window.deathlinksInProgress = false;
   window.game = new Game(gameOptions, seed, apId);
 
-  //****at the start of the game, print all edges, seperating which are locked and unlocked
-  console.log("First Print On Bootup")
-  // const list = window.game.cube.edges;
-  console.log(window.game.cube.edges);
-
   // Disable the standard right-click context menu on the whole document
   document.addEventListener('contextmenu', function(event) {
     event.preventDefault();
