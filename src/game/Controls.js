@@ -774,7 +774,7 @@ export default class Controls {
 
     //****
     //Send out an AJAX 
-    fetch("https://bashirkad.github.io/CubeNN/receiver", {
+    fetch("http://localhost:8000/receiver", {
       method: "POST",
       headers: {"Content Type": "application/json"},
       body: JSON.stringify(sides)
