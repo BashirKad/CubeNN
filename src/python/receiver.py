@@ -14,22 +14,32 @@ CORS(app)
 def receiver():
     data = request.json
 
-    blueFace = data["x+"]
-    greenFace = data["x-"]
-    whiteFace = data["y+"]
-    yellowFace = data["y-"]
-    redFace = data["z+"]
-    orangeFace = data["z-"]
+    print(data)
 
-    print(type(blueFace))
-    print(type(blueFace[0]))
+    # blueFace = data["x+"]
+    # greenFace = data["x-"]
+    # whiteFace = data["y+"]
+    # yellowFace = data["y-"]
+    # redFace = data["z+"]
+    # orangeFace = data["z-"]
 
-    helpers.helper(blueFace)
-    helpers.helper(greenFace)
-    helpers.helper(whiteFace)
-    helpers.helper(yellowFace)
-    helpers.helper(redFace)
-    helpers.helper(orangeFace)
+    # print("BLUE")
+    # helpers.helper(blueFace)
+
+    # print("GREEN")
+    # helpers.helper(greenFace)
+
+    # print("WHITE")
+    # helpers.helper(whiteFace)
+
+    # print("YELLOW")
+    # helpers.helper(yellowFace)
+
+    # print("RED")
+    # helpers.helper(redFace)
+
+    # print("ORANGE")
+    # helpers.helper(orangeFace)
 
     return jsonify({"Status" : "Successfully Received Message"})
 
