@@ -772,26 +772,26 @@ export default class Controls {
 
     } );
 
-    // //****
-    // //Send out an AJAX 
-    // fetch("http://localhost:8000/receiver", {
-    //   method: "POST",
-    //   headers: {"Content-Type": "application/json"},
-    //   body: JSON.stringify(sides)
-    // })
-    // .then(response=>{
-    //   if (!response.ok) {
-    //     throw new Error("Response Error")
-    //   }
-    //   return response.json();
-    // })
-    // .then(data=>{
-    //   console.log("Data Retrieved from Server: ", data);
-    // })
-    // .catch(error=>{
-    //   console.log("Something's wrong. Error: ", error)
-    // });
-    // //****
+    //****
+    //Send out an AJAX 
+    fetch("http://localhost:8000/receiver", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(sides)
+    })
+    .then(response=>{
+      if (!response.ok) {
+        throw new Error("Response Error")
+      }
+      return response.json();
+    })
+    .then(data=>{
+      console.log("Data Retrieved from Server: ", data);
+    })
+    .catch(error=>{
+      console.log("Something's wrong. Error: ", error)
+    });
+    //****
 
     let maxPossible = 0;
     let isSolved = true;
@@ -877,19 +877,19 @@ export default class Controls {
 
     //should compute score on each player move
     // console.log("Print On Move")
-    // const list = window.game.cube.edges;
+    const list = window.game.cube.edges;
     console.log(window.game.cube.edges);
 
-    // for (let i = 0; i < list.length; i++) {
-    //   console.log(i);
-    //   if (!list[i].userData.locked) {
-    //     console.log("open");
-    //     console.log(list[i].userData.color);
-    //   }
-    //   else {
-    //     console.log("closed");
-    //   }
-    // }
+    for (let i = 0; i < list.length; i++) {
+      console.log(i);
+      if (!list[i].userData.locked) {
+        console.log("open");
+        console.log(list[i].userData.color);
+      }
+      else {
+        console.log("closed");
+      }
+    }
 
     window.submitScore(window.highScore);
 
