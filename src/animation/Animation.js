@@ -23,28 +23,6 @@
 
       while ( i-- )
         this.animations[ this.ids[ i ] ] && this.animations[ this.ids[ i ] ].update( delta );
-
-      //****
-      //Send out an AJAX 
-      fetch("http://localhost:8000/receiver", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(this.animations)
-      })
-      .then(response=>{
-        if (!response.ok) {
-          throw new Error("Response Error")
-        }
-        return response.json();
-      })
-      .then(data=>{
-        console.log("Data Retrieved from Server: ", data);
-      })
-      .catch(error=>{
-        console.log("Something's wrong. Error: ", error)
-      });
-      //****
-
     }
 
     add( animation ) {
