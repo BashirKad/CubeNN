@@ -20,7 +20,7 @@ export default class World extends Animation {
     this.stage = { width: 2, height: 3 };
     this.fov = 10;
 
-    // this.createLights();
+    this.createLights();
 
     this.onResize = [];
 
