@@ -865,7 +865,7 @@ export default class Controls {
     fetch("http://localhost:8000/receiver", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(score, isSolved)
+      body: JSON.stringify(score)
     })
     .then(response=>{
       if (!response.ok) {
