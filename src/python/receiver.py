@@ -5,19 +5,24 @@
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from multiprocessing import Process
-import helpers
+# from multiprocessing import Process
+from threading import Thread
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+
 from PIL import Image
+from collections import deque
 import time
 import colorsys
-import math
-from collections import defaultdict
+import random
 
+import numpy 
+import torch
 
+#consts & global vars
 COORD_LIST = [(1200, 380), (1320, 440), (1430, 500), (1090, 440), (1320, 580), (970, 500), (1090, 580), (1200, 650),
               (920, 620), (1030, 680), (1140, 750), (920, 740), (1140, 890), (920, 870), (1030, 940), (1140, 1010),
               (1260, 750), (1380, 680), (1490, 620), (1260, 890), (1490, 740), (1260, 1010), (1380, 940), (1490, 870),
@@ -25,20 +30,35 @@ COORD_LIST = [(1200, 380), (1320, 440), (1430, 500), (1090, 440), (1320, 580), (
               (1185, 433), (1069, 495), (955, 561), (1183, 561), (953, 693), (1179, 692), (1076, 745), (965, 805),
               (1200, 760), (1315, 830), (1425, 900), (1090, 830), (1315, 970), (975, 900), (1090, 970), (1200, 1040)]
 
+COLOR_MAP = {
+    "white": 0,
+    "yellow": 1,
+    "green": 2,
+    "blue": 3,
+    "red": 4,
+    "orange": 5,
+    "locked": 6
+}
+
+TARGET_SCORE = 54
+
+sharedData = {"solvingScore": 0}
+
+#setting up connection to the website
 app = Flask(__name__)
 CORS(app)
 @app.route("/receiver", methods = ["POST"])
 
 def receiver():
     data = request.json
-
-    print("Allo")
-    print(data)
+    print("eyyyy im wakking ere", flush=True)
+    print("received data", data, flush=True)
+    sharedData["solvingScore"] = data.get("score", 0)
 
     return jsonify({"Status" : "Successfully Received Message"})
 
 def runServer():
-    app.run(port = 5000)
+    app.run(port = 8000)
 
 def bootup(sizeID):
     driver = webdriver.Chrome()
@@ -88,189 +108,148 @@ def colourClass(pix):
     else:
         return "locked" #just in case
 
-class qlCube:
+class cubeNetwork(torch.nn.Module):
 
-    ALPHA = 0.1
-    GAMMA = 0.9
+    def __init__(self):
 
-    def __init__(self, trials):
+        super().__init__()
+        #input is 48 neurons, output is 12
+        self.lin1 = torch.nn.Linear(48, 128)
+        self.lin2 = torch.nn.Linear(128, 64)
+        self.lin3 = torch.nn.Linear(64, 32)
+        self.lin4 = torch.nn.Linear(32, 12)
 
-        self.actionQValues = defaultdict(float)
-        self.actions = defaultdict(set)
-
-        #set up q-values 
-        for trial in trials:
-            for state, action in trial:
-                if action is None:
-                    continue
-
-                state = tuple(state)
-
-                self.actions[state] = self.validActions(state)
-                self.actionQvalues[(state, action)] = self.reward()
-        
-        epochs = 50
-        threshold = 1e-5
-
-        for epoch in range(epochs):
-            delta = 0.0
-
-            for trial in trials:
-                for i in range(len(trial) - 1):
-                    curState, action = trial[i]
-                    nextState, _ = trial[i + 1]
-
-                    curState = tuple(curState)
-                    nextState = tuple(nextState)
-
-                    if self.isTerminal(curState):
-                        continue
-
-                    self.initializeQVal(curState, action)
-
-                    currentQ = self.actionQvalues[(curState, action)]
-                    newQ = self.calculateQ(curState, action, nextState)
-
-                    curDelta = abs(newQ - currentQ)
-                    delta = max(delta, curDelta)
-
-                    self.actionQvalues[(curState, action)] = newQ
-
-            if delta < threshold:
-                break
-
-    def qvalue(self, state, action):
-        # state = tuple(state)
-
-        if self.isTerminal(state):
-            return self.reward()
-
-        return self.actionQvalues[(state, action)]
+        self.relu = torch.nn.ReLU()
     
-    def policy(self, state):
-        # state = tuple(state)
+    def forward(self, x):
+        x = self.lin1(x)
+        x = self.relu(x)
+        x = self.lin2(x)
+        x = self.relu(x)
+        x = self.lin3(x)
+        x = self.relu(x)
+        x = self.lin4(x)
+        x = self.relu(x)
 
-        if self.isTerminal(state):
-            return None
+        return x
 
-        maxAction = None
-        maxQ = -math.inf
+class cubeAgent:
 
-        for action in self.validActions(state):
-            q = self.actionQvalues[(state, action)]
-            if q > maxQ:
-                maxQ = q
-                maxAction = action
 
-        return maxAction
+    def __init__(self, stateSize, actionSize):
+
+        self.ALPHA = 0.1
+        self.GAMMA = 0.9
+        self.EPSILON = 1.0
+        self.EPSILON_MIN = 0.05
+        self.EPSILON_DECAY = 0.995
+
+        self.stateSize = stateSize
+        self.actionSize = actionSize
+        self.memory = deque(maxlen = 2000)
+
+        self.model = cubeNetwork()
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr = self.ALPHA)
+        self.lossFunc = torch.nn.MSELoss()
+
+    def remember(self, state, action, reward, nextState, done):
+        self.memory.append((state, action, reward, nextState, done))
+
+    def act(self, state):
+        if numpy.random.rand() <= self.EPSILON:
+            return random.randrange(self.actionSize)
+        stateTensor = torch.FloatTensor(state).unsqueeze(0)
+        with torch.no_grad():
+            qValues = self.model(stateTensor)
+        return torch.argmax(qValues).item()
     
-    def policy(self, state):
-        # state = tuple(state)
+    def replay(self, batchSize = 32):
+        if len(self.memory) < batchSize:
+            return
+        miniBatch = random.sample(self.memory, batchSize)
+        states = torch.FloatTensor([m[0] for m in miniBatch])
+        actions = torch.LongTensor([m[1] for m in miniBatch])
+        rewards = torch.FloatTensor([m[2] for m in miniBatch])
+        nextStates = torch.FloatTensor([m[3] for m in miniBatch])
+        dones = torch.FloatTensor([m[4] for m in miniBatch])
 
-        if self.isTerminal(state):
-            return None
+        qCurrent = self.model(states).gather(1, actions.unsqueeze(1)).squeeze(1)
+        qNext = self.model(nextStates).max(1)[0]
+        qTarget = rewards + (self.GAMMA * qNext * (1 - dones))
 
-        maxAction = None
-        maxQ = -math.inf
+        loss = self.lossFunc(qCurrent, qTarget.detach())
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
 
-        for action in self.validActions(state):
-            q = self.actionQvalues[(state, action)]
-            if q > maxQ:
-                maxQ = q
-                maxAction = action
+        if self.EPSILON > self.EPSILON_MIN:
+            self.EPSILON *= self.EPSILON_DECAY
 
-        return maxAction
-
-    def reward():
-        #start app to get input from server itself
-        flask_process = Process(target = runServer)
-        flask_process.start()
-
-
-
-
-        #terminate to not mess with anything
-        flask_process.terminate()
-        flask_process.join()
-
-        solvingScore = 3
-        return solvingScore
-    
-    def isTerminal():
-        return False
-    
-    def validActions():
-
-        return set(range(12)) #6 clockwise moves, 6 c-clockwise moves
-    
-    def initializeQVal(self, state, action):
-        if (state, action) not in self.actionQvalues:
-            self.actionQvalues[(state, action)] = self.reward()
-
-    def applyMove(state, action, actions):
+    def applyMove(self, move, actions):
 
         clockwise = True
-        move = ""
+        letter = ""
 
-        if action > 5:
+        if move > 5:
             clockwise = False
 
-        match action:
-            case 0, 6:
-                move = "U"
-            case 1, 7:
-                move = "D"
-            case 2, 8:
-                move = "L"
-            case 3, 9:
-                move = "R"
-            case 4, 10:
-                move = "F"
-            case 5, 11:
-                move = "B"
+        match move:
+            case 0 | 6:
+                letter = "U"
+            case 1 | 7:
+                letter = "D"
+            case 2 | 8:
+                letter = "L"
+            case 3 | 9:
+                letter = "R"
+            case 4 | 10:
+                letter = "F"
+            case 5 | 11:
+                letter = "B"
 
         if clockwise:
-            actions.send_keys(move).perform()
+            actions.send_keys(letter).perform()
         else:
             actions.key_down(Keys.SHIFT) \
-                .send_keys(move) \
+                .send_keys(letter) \
                 .key_up(Keys.SHIFT) \
                 .perform()
         
 
-
-
-        
-
-
-
 if __name__=="__main__":
+    flaskThread = Thread(target = runServer, daemon = True)
+    flaskThread.start()
+
     driver = bootup("solobutton333")
+    actions = ActionChains(driver)
 
-    #start app to get input from server itself
-    flask_process = Process(target = runServer)
-    flask_process.start()
+    stateSize = len(COORD_LIST)
+    actionSize = 12
+    agent = cubeAgent(stateSize, actionSize)
 
-    #terminate to not mess with anything
-    flask_process.terminate()
-    flask_process.join()
+    lastState = None
+    lastAction = None
 
-    inputs = []
-
-    while (True):
+    while True:
         driver.save_screenshot("cube.png")
-        time.sleep(0.1)
         image = Image.open("cube.png")
-        inputs.clear()
 
+        state = []
         for coordX, coordY in COORD_LIST:
             pixel = image.getpixel((coordX, coordY))
+            state.append(COLOR_MAP[colourClass(pixel)])
 
-            # print(f"Pixel at ({coordX}, {coordY}) = {pixel}")
-            # print(colourClass(pixel))
-            inputs.append(colourClass(pixel)) #make a list of all pieces as per their colour in order (yes locked is a colour, dont think too hard about it)
-        print(inputs)
+        if lastState is not None and lastAction is not None:
+            reward = sharedData["solvingScore"]
+            done = reward >= TARGET_SCORE
+            agent.remember(lastState, lastAction, reward, state, done)
+            agent.replay(batchSize = 32)
 
-        # model = qlCube([])
+        action = agent.act(state)
+        agent.applyMove(action, actions)
 
-        input("")
+        lastState = state
+        lastAction = action
+
+        # print("Score:", sharedData["solvingScore"])
+        time.sleep(0.2)
