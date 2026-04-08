@@ -32,12 +32,13 @@ CORS(app)
 def receiver():
     data = request.json
 
+    print("Allo")
     print(data)
 
     return jsonify({"Status" : "Successfully Received Message"})
 
 def runServer():
-    app.run(port = 8000)
+    app.run(port = 5000)
 
 def bootup(sizeID):
     driver = webdriver.Chrome()
@@ -106,7 +107,7 @@ class qlCube:
                 state = tuple(state)
 
                 self.actions[state] = self.validActions(state)
-                self.actionQvalues[(state, action)] = self.reward(state)
+                self.actionQvalues[(state, action)] = self.reward()
         
         epochs = 50
         threshold = 1e-5
@@ -142,7 +143,7 @@ class qlCube:
         # state = tuple(state)
 
         if self.isTerminal(state):
-            return self.reward(state)
+            return self.reward()
 
         return self.actionQvalues[(state, action)]
     
@@ -185,7 +186,7 @@ class qlCube:
         flask_process = Process(target = runServer)
         flask_process.start()
 
-        
+
 
 
         #terminate to not mess with anything
@@ -204,7 +205,7 @@ class qlCube:
     
     def initializeQVal(self, state, action):
         if (state, action) not in self.actionQvalues:
-            self.actionQvalues[(state, action)] = self.reward(state)
+            self.actionQvalues[(state, action)] = self.reward()
 
     def applyMove(state, action, actions):
 
@@ -246,6 +247,14 @@ class qlCube:
 if __name__=="__main__":
     driver = bootup("solobutton333")
 
+    #start app to get input from server itself
+    flask_process = Process(target = runServer)
+    flask_process.start()
+
+    #terminate to not mess with anything
+    flask_process.terminate()
+    flask_process.join()
+
     inputs = []
 
     while (True):
@@ -261,4 +270,7 @@ if __name__=="__main__":
             # print(colourClass(pixel))
             inputs.append(colourClass(pixel)) #make a list of all pieces as per their colour in order (yes locked is a colour, dont think too hard about it)
         print(inputs)
+
+        # model = qlCube([])
+
         input("")
