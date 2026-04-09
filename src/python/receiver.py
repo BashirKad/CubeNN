@@ -51,8 +51,6 @@ CORS(app)
 
 def receiver():
     data = request.json
-    print("eyyyy im wakking ere")
-    print("received data", data)
     sharedData["solvingScore"] = int(data)
 
     return jsonify({"Status" : "Successfully Received Message"})
@@ -251,5 +249,4 @@ if __name__=="__main__":
         lastState = state
         lastAction = action
 
-        # print("Score:", sharedData["solvingScore"])
         time.sleep(0.2)
